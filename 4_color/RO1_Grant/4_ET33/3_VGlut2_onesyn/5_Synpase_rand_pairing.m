@@ -1,0 +1,304 @@
+outpath = 'Z:\Chenghang\chenghaz_005_Sample_P8_C_A\analysis\elastic_align\Result\VGlut2\';
+outpath2 = 'Z:\Chenghang\chenghaz_005_Sample_P8_C_A\analysis\elastic_align\Result\Rand_G\';
+%%
+load([outpath2 'randR_paired.mat']);
+voxel = [15.5 15.5 70];
+%
+for i = 1:numel(statsRwater_sn)
+    centRa2ns(i,:) = statsRwater_sn(i).WeightedCentroid;
+    rcentRa2ns(i,:) = centRa2ns(i,:) .* voxel;
+end
+
+for i =1:numel(statsRwater_ss)
+    centRa2s(i,:) = statsRwater_ss(i).WeightedCentroid;
+    rcentRa2s(i,:) = centRa2s(i,:) .* voxel;
+    volumeRs(i,1) = statsRwater_ss(i).Area;
+end
+
+load([outpath2 'randG_paired.mat']);
+for i = 1:numel(statsGwater_sn)
+    centGa2ns(i,:) = statsGwater_sn(i).WeightedCentroid;
+    rcentGa2ns(i,:) = centGa2ns(i,:) .* voxel;
+end
+
+for i =1:numel(statsGwater_ss)
+    centGa2s(i,:) = statsGwater_ss(i).WeightedCentroid;
+    rcentGa2s(i,:) = centGa2s(i,:) .* voxel;
+    volumeGs(i,1) = statsGwater_ss(i).Area;
+end
+%
+centRa2ns = cat(1,centRa2ns,centGa2ns);
+centRa2s = cat(1,centRa2s,centGa2s);
+rcentRa2ns = cat(1,rcentRa2ns,rcentGa2ns);
+rcentRa2s = cat(1,rcentRa2s,rcentGa2s);
+volumeGs = cat(1,volumeRs,volumeGs);
+clear volumeGs
+
+%
+load([outpath 'statslistV2sw10.mat']);
+load([outpath 'statslistV2nsw10.mat']);
+%
+% sizeshape_matGns = sizeshape_matGa2ns;%(rcentGa2ns(:,2)<46000,:);
+centGa2ns2 = centGa2ns;%(rcentGa2ns(:,2)<46000,:);
+centGns = rcentGa2ns;%(rcentGa2ns(:,2)<46000,:);
+
+% sizeshape_matGs = sizeshape_matGa2s;%(rcentGa2s(:,2)<46000,:);
+centGa2s2 = centGa2s;%(rcentGa2s(:,2)<46000,:);
+centGs = rcentGa2s;%(rcentGa2s(:,2)<46000,:);
+%
+% sizeshape_matRns = sizeshape_matRa2ns;%(rcentPa2ns(:,2)<46000,:);
+centRa2ns2 = centRa2ns;%(rcentPa2ns(:,2)<46000,:);
+centRns = rcentRa2ns;%(rcentPa2ns(:,2)<46000,:);
+
+% sizeshape_matRs = sizeshape_matRa2s;%(rcentPa2s(:,2)<46000,:);
+centRa2s2 = centRa2s;%(rcentPa2s(:,2)<46000,:);
+centRs = rcentRa2s;%(rcentPa2s(:,2)<46000,:);
+
+centR_all = cat(1, centRs, centRns);
+% volumeRs = sizeshape_matRs(:,19);
+centG_all = cat(1, centGns, centGs);
+volumeGs = sizeshape_matGa2s(:,19);
+%
+expfolder = 'Z:\Chenghang\chenghaz_005_Sample_P8_C_A\analysis\elastic_align\storm_merged\';
+files = [dir([expfolder '*.tif']) dir([expfolder '*.png'])];
+infos = imfinfo([expfolder files(1,1).name]);
+num_images = numel(files);
+size1 = infos.Width;
+size2 = infos.Height;
+sizeR = size(centRs,1);
+sizeRn = size(centRns,1);
+sizeRall = size(centR_all,1);
+sizeG = size(centGs,1);
+sizeGn = size(centGns,1);
+sizeGall = size(centG_all,1);
+%
+voxel = [15.5,15.5,70];
+centRs_rand = cat(2,randi(size1,sizeR,1).*voxel(1),randi(size2,sizeR,1).*voxel(2),randi(num_images,sizeR,1).*voxel(3));
+centRall_rand = cat(2,randi(size1,sizeRall,1).*voxel(1),randi(size2,sizeRall,1).*voxel(2),randi(num_images,sizeRall,1).*voxel(3));
+centGs_rand = cat(2,randi(size1,sizeG,1).*voxel(1),randi(size2,sizeG,1).*voxel(2),randi(num_images,sizeG,1).*voxel(3));
+centGall_rand = cat(2,randi(size1,sizeGall,1).*voxel(1),randi(size2,sizeGall,1).*voxel(2),randi(num_images,sizeGall,1).*voxel(3));
+%
+nn_Gall_Rs = zeros(size(centG_all,1),1);
+nn_Grand_Rs = zeros(size(centG_all,1),1);
+nn_Gs_Rs = zeros(size(centGs,1),1);
+nn_Gns_Rs = zeros(size(centGns,1),1);
+%nn_Gall_Pall = zeros(size(centG_all,1),1);
+%nn_Grand_Pall = zeros(size(centG_all,1),1);
+%nn_Gs_Pall = zeros(size(centGs,1),1);
+%nn_Gns_Pall = zeros(size(centGns,1),1);
+
+nn_Rall_Gs = zeros(size(centR_all,1),1);
+nn_Rrand_Gs = zeros(size(centR_all,1),1);
+nn_Rs_Gs = zeros(size(centRs,1),1);
+nn_Rns_Gs = zeros(size(centRns,1),1);
+%nn_Pall_Gall = zeros(size(centP_all,1),1);
+%nn_Prand_Gall = zeros(size(centP_all,1),1);
+%nn_Ps_Gall = zeros(size(centPs,1),1);
+%nn_Pns_Gall = zeros(size(centPns,1),1);
+%%
+disp('startG1')
+parfor i=1:size(centG_all,1)
+nn_Gall_Rs(i) = min(pdist2(centG_all(i,:),centRs));
+nn_Grand_Rs(i) = min(pdist2(centGall_rand(i,:),centRs_rand));
+%nn_Gall_Pall(i) = min(pdist2(centG_all(i,:),centP_all));
+%nn_Grand_Pall(i) = min(pdist2(centGall_rand(i,:),centP_all));
+end
+%
+disp('startG2')
+parfor i=1:size(centGs,1)
+   nn_Gs_Rs(i) = min(pdist2(centGs(i,:),centRs));
+%   nn_Gs_Pall(i) = min(pdist2(centGs(i,:),centP_all));
+end
+disp('startG3')
+parfor i=1:size(centGns,1)
+   nn_Gns_Rs(i) = min(pdist2(centGns(i,:),centRs));
+%   nn_Gns_Pall(i) = min(pdist2(centGns(i,:),centP_all));
+end
+%
+disp('startP1')
+parfor i=1:size(centR_all,1)
+nn_Rall_Gs(i) = min(pdist2(centR_all(i,:),centGs));
+nn_Rrand_Gs(i) = min(pdist2(centRall_rand(i,:),centGs_rand));
+%nn_Pall_Gall(i) = min(pdist2(centP_all(i,:),centG_all));
+%nn_Prand_Gall(i) = min(pdist2(centPall_rand(i,:),centG_all));
+end
+%
+disp('startP2')
+parfor i=1:size(centRs,1)
+   nn_Rs_Gs(i) = min(pdist2(centRs(i,:),centGs));
+ %  nn_Ps_Gall(i) = min(pdist2(centPs(i,:),centG_all));
+end
+disp('startP3')
+parfor i=1:size(centRns,1)
+   nn_Rns_Gs(i) = min(pdist2(centRns(i,:),centGs));
+ %  nn_Pns_Gall(i) = min(pdist2(centPns(i,:),centG_all));
+end
+%%
+save([outpath 'nearest_neightbor_pairing_vw10randsw10.mat'],'nn_*')
+%%
+binsl = 0:0.05:5;
+[hy1, hx2] = hist(log10(nn_Gall_Rs),binsl);
+[hy2, hx2] = hist(log10(nn_Gs_Rs),binsl);
+[hy3, hx2] = hist(log10(nn_Gns_Rs),binsl);
+[hy4, hx2] = hist(log10(nn_Grand_Rs),binsl);
+%[hy1a, hx2] = hist(log10(nn_Gall_Pall),binsl);
+%[hy2a, hx2] = hist(log10(nn_Gs_Pall),binsl);
+%[hy3a, hx2] = hist(log10(nn_Gns_Pall),binsl);
+%[hy4a, hx2] = hist(log10(nn_Grand_Pall),binsl);
+
+[hy5, hx2] = hist(log10(nn_Rall_Gs),binsl);
+[hy6, hx2] = hist(log10(nn_Rs_Gs),binsl);
+[hy7, hx2] = hist(log10(nn_Rns_Gs),binsl);
+[hy8, hx2] = hist(log10(nn_Rrand_Gs),binsl);
+%[hy5a, hx2] = hist(log10(nn_Pall_Gall),binsl);
+%[hy6a, hx2] = hist(log10(nn_Ps_Gall),binsl);
+%[hy7a, hx2] = hist(log10(nn_Pns_Gall),binsl);
+%[hy8a, hx2] = hist(log10(nn_Prand_Gall),binsl);
+%
+figure;
+plot(hx2,hy1,'k'); alpha(0.5); hold on
+plot(hx2,hy2,'g'); alpha(0.5); hold on
+plot(hx2,hy3,'r'); alpha(0.5); hold on
+plot(hx2,hy4*0.5,'b'); alpha(0.5)
+
+savefig([outpath 'nnvsplit_randSs_counts_with_and_all.fig'])
+%%
+%figure;
+%plot(hx2,hy1a,'k'); alpha(0.5); hold on
+%plot(hx2,hy2a,'g'); alpha(0.5); hold on
+%plot(hx2,hy3a,'r'); alpha(0.5); hold on
+%plot(hx2,hy4a*0.4,'b'); alpha(0.5)
+%savefig([base_folder 'nnGsplit_Pall_counts_with_rand_and_all.fig'])
+
+figure;
+plot(hx2,hy5,'k'); alpha(0.5); hold on
+plot(hx2,hy6,'g'); alpha(0.5); hold on
+plot(hx2,hy7,'r'); alpha(0.5); hold on
+plot(hx2,hy8*0.5,'b'); alpha(0.5)
+
+savefig([outpath 'nnrandSsplit_Vs_counts_with_and_all.fig'])
+%
+%figure;
+%plot(hx2,hy5a,'k'); alpha(0.5); hold on
+%plot(hx2,hy6a,'g'); alpha(0.5); hold on
+%plot(hx2,hy7a,'r'); alpha(0.5); hold on
+%plot(hx2,hy8a*0.4,'b'); alpha(0.5)
+%savefig([base_folder 'nnPsplit_Gall_counts_with_rand_and_all.fig'])
+
+%%
+ft = fittype( 'gauss2' );
+opts = fitoptions( 'Method', 'NonlinearLeastSquares' );
+opts.Display = 'Off';
+%
+clear hyall_use hys_use hyns_use
+hyall_use = cat(1,hy1,hy5);
+hys_use = cat(1,hy2,hy6);
+hyns_use = cat(1,hy3,hy7);
+for i=1:2
+    disp(i)
+[xData, yData] = prepareCurveData( hx2, hyall_use(i,:));
+ft = fittype( 'gauss2' );
+opts = fitoptions( 'Method', 'NonlinearLeastSquares' );
+opts.Display = 'Off';
+opts. Lower = [0 1.8 0 0 2.4 0];
+opts.StartPoint = [12849 2.2 0.3 i^2*15803.883942715 2.8 0.4];
+opts. Upper = [Inf 2.3 0.4 Inf 3.5 0.5];
+
+[fr, gof] = fit( xData, yData, ft, opts );
+confintall = confint(fr);
+%
+%figure( 'Name', 'untitled fit 1' );
+%subplot(1,3,1)
+%h = plot( fr, xData, yData );
+clear xData yData
+[xData, yData] = prepareCurveData( hx2, hys_use(i,:));
+ft = fittype( 'gauss2' );
+opts = fitoptions( 'Method', 'NonlinearLeastSquares' );
+opts.Display = 'Off';
+opts. Lower = [0 fr.b1 fr.c1 0 fr.b2 fr.c2];
+opts.StartPoint = [hys_use(i,round(fr.b1*10)) fr.b1 fr.c1 hys_use(i,round(fr.b2*10)) fr.b2 fr.c2];
+opts. Upper = [Inf fr.b1*1.001 fr.c1*1.001 Inf fr.b2*1.001 fr.c2*1.001];
+[fitresults, gofs] = fit( xData, yData, ft, opts );
+%subplot(1,3,2)
+%h = plot( fitresults, xData, yData );
+
+
+[xData2, yData2] = prepareCurveData( hx2, hyns_use(i,:));
+clear ft opts
+ft = fittype( 'gauss2' );
+opts = fitoptions( 'Method', 'NonlinearLeastSquares' );
+opts.Display = 'Off';
+opts. Lower = [0 fr.b1 fr.c1 0 fr.b2 fr.c2];
+opts.StartPoint = [hyns_use(i,round(fr.b1*10)) fr.b1 fr.c1 hyns_use(i,round(fr.b2*10)) fr.b2 fr.c2];
+opts. Upper = [Inf fr.b1*1.001 fr.c1*1.001 Inf fr.b2*1.001 fr.c2*1.001];
+[fitresultns, gofns] = fit( xData2, yData2, ft, opts );
+%subplot(1,3,3)
+%h = plot( fitresultns, xData2, yData2 );
+goodfit(i,1) = gof.adjrsquare;
+goodfit(i,2) = gofs.adjrsquare;
+goodfit(i,3) = gofns.adjrsquare;
+%
+sa1(i) = fitresults.a1;
+sb1(i) = fitresults.b1;
+sc1(i) = fitresults.c1;
+sa2(i) = fitresults.a2;
+sb2(i) = fitresults.b2;
+sc2(i) = fitresults.c2;
+nsa1(i) = fitresultns.a1;
+nsb1(i) = fitresultns.b1;
+nsc1(i) = fitresultns.c1;
+nsa2(i) = fitresultns.a2;
+nsb2(i) = fitresultns.b2;
+nsc2(i) = fitresultns.c2;
+syngeph(i) =  fitresults.a1*fitresults.c1 *10*sqrt(2*pi);
+paired_s(i) = fitresults.a1*fitresults.c1 *10*sqrt(2*pi)/...
+    ( fitresults.a1*fitresults.c1 *10*sqrt(2*pi)+ ...
+    fitresults.a2*fitresults.c2 *10*sqrt(2*pi));
+unpaired_s(i) = fitresults.a2*fitresults.c2 *10*sqrt(2*pi)/...
+    ( fitresults.a1*fitresults.c1 *10*sqrt(2*pi)+ ...
+    fitresults.a2*fitresults.c2 *10*sqrt(2*pi));
+paired_ns(i) = fitresultns.a1*fitresultns.c1 *10*sqrt(2*pi)/...
+    ( fitresultns.a1*fitresultns.c1 *10*sqrt(2*pi)+ ...
+    fitresultns.a2*fitresultns.c2 *10*sqrt(2*pi));
+unpaired_ns(i) = fitresultns.a2*fitresultns.c2 *10*sqrt(2*pi)/...
+    ( fitresultns.a1*fitresultns.c1 *10*sqrt(2*pi)+ ...
+    fitresultns.a2*fitresultns.c2 *10*sqrt(2*pi));
+end
+%%
+goodfit
+paired_s
+unpaired_s
+paired_ns
+unpaired_ns
+%%
+figure;
+NumTrials=5; % Number of trail fits per sample
+PeakShape=1; % Gaussian=1, Lorentzian=2, Logistic=3, Pearson=4
+% "extra" determines the shape of the Pearson function. When extra=1
+% the shape is Lorentzian; when extra is large (>20), the shape 
+% approaches Gaussian. At small values (<1), the shape is a pointy "cusp".
+extra=2; 
+center=5; % x-value in center of fitted range
+window =2000;
+NumPeaks = 2;
+%startvector=[100 50 300 100 ];
+startvector=[2 1 2.7 1];
+
+[FitResultsG,LowestError]=peakfit([hx2' (hy5)'],center,window,NumPeaks,PeakShape,extra,NumTrials,startvector); 
+
+
+
+
+%%
+load([outpath 'add_to_statsVw10_edges.mat'],'tintsG_p140');
+mints_g70s = (([tintsG_p140])./[volumeGs]');
+
+pairedg_idx = find(mints_g70s);
+disp('The number of filtered out suspected Vgltu2 cluster: ')
+numel(pairedg_idx)/numel(mints_g70s)
+%%
+load([outpath 'statsV2sw10.mat']);
+statsVwater_ss = statsGa2s(pairedg_idx);
+statsVwater_sn = statsGa2s(~pairedg_idx);
+save([outpath 'V_rand_paired.mat'],'statsVwater_ss','statsVwater_sn');
+
